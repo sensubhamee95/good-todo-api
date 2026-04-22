@@ -22,6 +22,7 @@
 // src/app.js
 
 require('dotenv').config();
+const errorHandler = require('./middleware/errorHandler');
 
 const express = require('express');
 const cors = require('cors');
@@ -44,6 +45,8 @@ const todoRoutes = require('./routes/todo.routes');
 
 // prefix all routes with /api
 app.use('/api', todoRoutes);
+
+app.use(errorHandler);
 
 // Port from .env or default 3001
 const PORT = process.env.PORT || 3001;
