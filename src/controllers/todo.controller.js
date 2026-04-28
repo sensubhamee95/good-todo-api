@@ -1,7 +1,12 @@
 const db = require('../db');
 
+let queueArr = [];
+let queueIndex = 0;
+
+
+
 // Insert To DO ----- POST /api/todos
-const createTodo = async (req, res , next) => {
+const createTodo = async (req, res, next) => {
   try {
     const { title, description, priority, due_date } = req.body;
 
@@ -24,7 +29,7 @@ const createTodo = async (req, res , next) => {
 
     const result = await db.query(query, values);
 
-
+    queueService(result.rows[0]);
     // Return created todo
     return res.status(201).json(result.rows[0]);
 
@@ -34,10 +39,20 @@ const createTodo = async (req, res , next) => {
   }
 };
 
+const queueService = (result) => {
+  queueArr.push(result);
+  setTimeout(() => {
+    // console.log('queue', queueArr, queueIndex);
+    console.log('Print after 10 seconds-----------', queueArr[queueIndex]);
+    queueIndex++;
+  }, 10000);
+};
+
+
 // Get all To do --------
-const getAllTodos = async (req, res , next) => {
-  try{
-      const { status, priority } = req.query;
+const getAllTodos = async (req, res, next) => {
+  try {
+    const { status, priority } = req.query;
 
     let query = `SELECT * FROM todos`;
     let conditions = [];
@@ -72,7 +87,7 @@ const getAllTodos = async (req, res , next) => {
 
     return res.status(200).json(result.rows);
   }
-  catch(error){
+  catch (error) {
 
     console.error('Error get all todo:', error);
     next(error);
@@ -109,7 +124,7 @@ const getTodoById = async (req, res, next) => {
 };
 
 //update todo by id
-const updateTodo = async (req, res , next) => {
+const updateTodo = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { title, description, priority, due_date, is_completed } = req.body;
@@ -182,7 +197,7 @@ const updateTodo = async (req, res , next) => {
 };
 
 //delete todo by id
-const deleteTodo = async (req, res , next) => {
+const deleteTodo = async (req, res, next) => {
   try {
     const { id } = req.params;
     const query = `
@@ -207,10 +222,10 @@ const deleteTodo = async (req, res , next) => {
 
   } catch (error) {
     console.error('Error deleting todo:', error);
-     next(error);
+    next(error);
   }
 };
 
 module.exports = {
-  createTodo,getAllTodos,getTodoById,updateTodo,deleteTodo
+  createTodo, getAllTodos, getTodoById, updateTodo, deleteTodo
 };
